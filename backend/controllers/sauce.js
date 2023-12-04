@@ -47,6 +47,7 @@ exports.createSauce = (req, res) => {
         usersLikes: [],
         usersDislikes: []
     });
+    console.log(sauce)
     sauce.save()
         .then(() => res.status(201).json({ message: 'Sauce enregistrée !' }))
         .catch(error => res.status(400).json({ error }));
@@ -66,7 +67,6 @@ exports.modifySauce = (req, res) => {
                 res.status(403).json({ message: "Non autorisé !" });
             } else {
                 const imageSauce = sauce.imageUrl.split('/images/')[1];
-                //Si modification de l'image, suppression de l'image précédente
                 if (req.file && req.file.filename !== imageSauce) {
                     deleteImage(sauce, req, res);
                 }
@@ -93,7 +93,4 @@ exports.deleteSauce = (req, res) => {
         })
         .catch(error => res.status(500).json({ error }));
 };
-
-
-
 
