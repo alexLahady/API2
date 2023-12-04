@@ -1,5 +1,5 @@
 const express = require('express');
-const bodyParser =  require('body-parser');
+//const bodyParser =  require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
 
@@ -7,7 +7,7 @@ require('dotenv').config();
 
 //console.log("affiche "+process.env.MONGOOSE);
 
-const stuffRoutes = require('./routes/stuff');
+const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
 mongoose.connect(process.env.MONGOOSE,
@@ -19,6 +19,7 @@ mongoose.connect(process.env.MONGOOSE,
 const app = express();
 
 app.use(express.json());
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,21 +28,22 @@ app.use((req, res, next) => {
     next();
   });
 
-app.use(bodyParser.json());
+//console.log(bodyParser.json());
+//app.use(bodyParser.json());
 
 
-app.use('/api/sauces', stuffRoutes);
+app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
-app.use('/images', express.static(path.join(__dirname, 'images')));
+
 /*
-app.get('/api/stuff', (req, res, next) => {
+app.get('/api/sauces', (req, res, next) => {
     const stuff = [
       {
         _id: 'oeihfzeoi',
-        title: 'Mon premier objet',
+        name: 'Mon premier objet',
         description: 'Les infos de mon premier objet',
         imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
-        price: 4900,
+        heat:  10,
         userId: 'qsomihvqios',
       },
       {
@@ -56,4 +58,5 @@ app.get('/api/stuff', (req, res, next) => {
     res.status(200).json(stuff);
   });
 */
+
 module.exports = app;
