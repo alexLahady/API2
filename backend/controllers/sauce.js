@@ -127,7 +127,7 @@ function resetVote(sauce, userId, res) {
     //Récupération des tableaux usersLiked et usersDisliked
     const { usersLiked, usersDisliked } = sauce;
 
-    //Message d'erreur si l'utilisateur peut liker ET disliker
+    //Message d'erreur si l'utilisateur peut liker et disliker
     if ([usersLiked, usersDisliked].every(arr => arr.includes(userId))){
         return Promise.reject({ message: "L'utilisateur semble avoir voté dans les deux sens !" });
     }
@@ -141,13 +141,13 @@ function resetVote(sauce, userId, res) {
     if (usersLiked.includes(userId)) {
         sauce.usersLiked = sauce.usersLiked.filter((id) => id !== userId)
         sauce.likes = sauce.usersLiked.length ; // like en fonction du nombre d'utilisateur
-        console.log( sauce.likes );
-        console.log( 'longueur du tableau '+sauce.usersLiked.length );
+        //console.log( sauce.likes );
+        //console.log( 'longueur du tableau '+sauce.usersLiked.length );
     } else {
         sauce.usersDisliked = sauce.usersDisliked.filter((id) => id !== userId);
         sauce.dislikes = sauce.usersDisliked.length ;// dislike en fonction du nombre d'utilisateur
-        console.log( sauce.dislikes );
-        console.log( 'longueur du tableau '+sauce.usersDisliked.length );
+        //console.log( sauce.dislikes );
+        //console.log( 'longueur du tableau '+sauce.usersDisliked.length );
     }
 
     return sauce;
