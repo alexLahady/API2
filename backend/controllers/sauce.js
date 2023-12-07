@@ -35,7 +35,6 @@ exports.getOneSauce = (req, res) => {
 
 exports.createSauce = (req, res) => {
     const sauceObject = JSON.parse(req.body.sauce);
-    console.log(JSON.parse(req.body.sauce));
     delete sauceObject._id;
     delete sauceObject.userId;
     const sauce = new Sauce({
@@ -91,6 +90,79 @@ exports.deleteSauce = (req, res) => {
                 deleteImage(sauce, req, res);
             }
         })
+        .catch(error => res.status(500).json({ error }));
+};
+
+//Mise à jour du vote Like/Dislike
+function udapte(sauce, like, userId, res) {
+    if (like === 1 || like === -1) {
+        return incrementeVote(sauce, userId, like);
+    }
+    return resetVote(sauce, userId, res);
+}
+
+//Ajout du vote
+function incrementeVote(sauce, userId, like) {
+    //Récupération des tableaux usersLiked et usersDisliked
+    const { usersLiked, usersDisliked } = sauce;
+
+    //Ajout de l'id dans le tableau 
+    const tabVote = like === 1 ? usersLiked : usersDisliked; // un if rapide
+    if (tabVote.includes(userId)){
+        return sauce;
+    }
+    tabVote.push(userId);
+
+    //Incrémentation du compteur Like ou Dislike 
+    if (like === 1 ){
+        ++sauce.likes
+    } else {
+        ++sauce.dislikes;
+    }
+    return sauce;
+}
+
+//Annulation du vote
+function resetVote(sauce, userId, res) {
+    //Récupération des tableaux usersLiked et usersDisliked
+    const { usersLiked, usersDisliked } = sauce;
+
+    //Message d'erreur si l'utilisateur peut liker ET disliker
+    if ([usersLiked, usersDisliked].every(arr => arr.includes(userId))){
+        return Promise.reject({ message: "L'utilisateur semble avoir voté dans les deux sens !" });
+    }
+
+    //Message d'erreur si l'utilisateur n'a pas voté
+    if (![usersLiked, usersDisliked].some(arr => arr.includes(userId))){
+        return Promise.reject({ message: "L'utilisateur n'a pas voté !" });
+    }
+
+    //Retrait de l'id de l'utilisateur du tableau à modifier
+    if (usersLiked.includes(userId)) {
+        sauce.usersLiked = sauce.usersLiked.filter((id) => id !== userId)
+        sauce.likes = sauce.usersLiked.length ; // like en fonction du nombre d'utilisateur
+        console.log( sauce.likes );
+        console.log( 'longueur du tableau '+sauce.usersLiked.length );
+    } else {
+        sauce.usersDisliked = sauce.usersDisliked.filter((id) => id !== userId);
+        sauce.dislikes = sauce.usersDisliked.length ;// dislike en fonction du nombre d'utilisateur
+        console.log( sauce.dislikes );
+        console.log( 'longueur du tableau '+sauce.usersDisliked.length );
+    }
+
+    return sauce;
+}
+
+//Les like et les dislike de la sauce
+exports.likeSauce = (req, res) => {
+    const {userId, like} = req.body;
+    if (![0, -1, 1].includes(like)){
+        return res.status(400).json({ message: "Mauvaise Requête"});
+    }
+    getSauceById(req, res)
+        .then((sauce) => udapte(sauce, like, userId))
+        .then(saveSauce => saveSauce.save())
+        .then(sauce => res.status(200).json(sauce))
         .catch(error => res.status(500).json({ error }));
 };
 
